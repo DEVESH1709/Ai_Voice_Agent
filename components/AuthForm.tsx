@@ -13,6 +13,7 @@ import {
 import FormField from "./FormField"
 import  Link  from "next/link"
 import {toast} from "sonner"
+import {auth} from "@/firebase/client"
 // const formSchema = z.object({
 //   username: z.string().min(2).max(50),
 // })
@@ -41,12 +42,28 @@ const AuthForm = ({type} :{type:FormType}) => {
 
  
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
    try{
 if(type==='sign-up'){
+  const {name,email,password} = values;
+
+const userCredentials = await auth.createUserWithEmailAndPassword(auth,email,password);
+
+const result =await signUp({
+  uid:userCredentials.user.uid,
+  name,
+  email,
+  password
+})
+
+if(!result?.success){
+  toast.error(result?.message);
+  return;
+}
    toast.success('Account created successfully.Please sign in');
    router.push('/sign-in')
 }
+
 else{
     toast.success('Sign In successfully');
    router.push('/')
