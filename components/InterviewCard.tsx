@@ -4,6 +4,7 @@ import Image from 'next/image';
 import {getRandomInterviewCover} from '@/lib/utils'
 import { Button } from './ui/button';
 import Link from 'next/link';
+import DisplayTechicons from './DisplayTechicons';
 const InterviewCard = ({interviewId,userId,role,type,techstack,createdAt}:InterviewCardProps) => {
  const feedback =null as Feedback |null;
  const normalizedType = /mix/gi.test(type)?'Mixed' : type;
@@ -37,7 +38,7 @@ const InterviewCard = ({interviewId,userId,role,type,techstack,createdAt}:Interv
 </p>
 </div> 
 <div className='flex flex-row justify-between'>
-    <p>Tech Icons</p>
+    <DisplayTechicons techStack={techstack}></DisplayTechicons>
     <Button className="btn-primary">
         <Link href={
             feedback? `/interviews/${interviewId}/feedback` : `/interviews/${interviewId}`
