@@ -17,6 +17,7 @@ import {auth} from "@/firebase/client"
 // const formSchema = z.object({
 //   username: z.string().min(2).max(50),
 // })
+import  {createUserWithEmailAndPassword,signInWithEmailAndPassword} from "@firebase/auth"
 
 const authFormSchema =(type :FormType)=>{
 return z.object({
@@ -65,6 +66,15 @@ if(!result?.success){
 }
 
 else{
+  const {email,password} = values;
+  const userCredentials = await auth.signInWithEmailAndPassword(auth,email,password);
+  const idToken = await userCredentials.user.getIdToken();
+  if(!idToken){
+    toast.error('SignIn is failed');
+    return;
+  }
+await signIn({email,idToken});
+
     toast.success('Sign In successfully');
    router.push('/')
 }
