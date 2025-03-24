@@ -1,7 +1,8 @@
 "use server";
-import {db} from '@/firebase/admin';
+import {db,auth} from '@/firebase/admin';
 
-
+import {cookies} from 'next/headers';
+const OneWeek = 60*60*24*7;
 export async function signUp (params: SignUpParams) {
 
   
@@ -33,4 +34,35 @@ export async function signUp (params: SignUpParams) {
             message:"Something went wrong"
         }
     }
+}
+
+export async function signIn(params: SignInParams){
+    const {email,idToken}=params;
+
+    try{const userRecord = await auth.getUserByEmail(email);
+    if(!userRecord){
+        return{
+            success:false,
+            message:"User not found"
+        }
+    }await setSessionCookies(idToken);
+
+    }catch(e){
+console.log(e);
+    }
+}
+
+
+export async function setSessionCookies(idToken:string){
+const CookieStore = await cookies();
+
+const sessionCookie  =await auth.createSessionCookie(idToken,{expiresIn:OneWeek*1000,});
+
+cookieStore.set('session',sessionCookie,{
+ maxAge:OneWeek,
+    httpOnly:true,
+    secure:process.env.NODE_ENV==='production',
+    sameSite:'lax'
+})
+
 }
