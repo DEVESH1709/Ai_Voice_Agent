@@ -14,10 +14,15 @@ import FormField from "./FormField"
 import  Link  from "next/link"
 import {toast} from "sonner"
 import {auth} from "@/firebase/client"
+import { signIn, signUp } from "@/lib/actions/auth.action";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 // const formSchema = z.object({
 //   username: z.string().min(2).max(50),
 // })
-import  {createUserWithEmailAndPassword,signInWithEmailAndPassword} from "@firebase/auth"
+
 
 const authFormSchema =(type :FormType)=>{
 return z.object({
@@ -48,11 +53,11 @@ const AuthForm = ({type} :{type:FormType}) => {
 if(type==='sign-up'){
   const {name,email,password} = values;
 
-const userCredentials = await auth.createUserWithEmailAndPassword(auth,email,password);
+const userCredentials = await createUserWithEmailAndPassword(auth,email,password);
 
 const result =await signUp({
   uid:userCredentials.user.uid,
-  name,
+  name:name!,
   email,
   password
 })
@@ -67,7 +72,7 @@ if(!result?.success){
 
 else{
   const {email,password} = values;
-  const userCredentials = await auth.signInWithEmailAndPassword(auth,email,password);
+  const userCredentials = await signInWithEmailAndPassword(auth,email,password);
   const idToken = await userCredentials.user.getIdToken();
   if(!idToken){
     toast.error('SignIn is failed');
