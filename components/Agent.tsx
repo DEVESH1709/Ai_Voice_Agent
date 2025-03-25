@@ -1,20 +1,24 @@
-import React from 'react'
+"use client";
 import Image from 'next/image'
+// import { useState, useEffect } from "react";
+// import { useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 
 enum CallStatus{
-    INACTIVE:'INACTIVE',
-    CONNECTING:'CONNECTING',
-    ACTIVE:'ACTIVE',
-    FINISHED:'FINISHED',
+    INACTIVE='INACTIVE',
+    CONNECTING='CONNECTING',
+    ACTIVE='ACTIVE',
+    FINISHED='FINISHED',
 }
-const Agent = () => {
-const isSpeaking = true;
+const Agent = ({userName}:AgentProps) => {
+const callStatus =CallStatus.FINISHED;
 const isSpeaking =true;
-const message={
+const messages=[
     'Whats your name?',
     'My name is John Doe, nice to meet you !'
-};
-const lastMessage =message[message.length-1]; 
+];
+const lastMessage =messages[messages.length-1]; 
 
   return (
     <>
@@ -42,22 +46,24 @@ const lastMessage =message[message.length-1];
     </div>
     </div>
 
-    {messages.length>0 &&(
+    {messages.length >0 &&(
+        <div className='transcript-border'>
         <div className='transcript'>
         <p key={lastMessage} className={cn('transition-opacity duration-500 opacity-0','animate-fadeIn opacity-100')}>
         {lastMessage}
         </p></div>
+        </div>
     )}
 <div className='w-full flex justify-center'>
 {
-    callStatus !==='ACTIVE'?(
+    callStatus !=='ACTIVE'?(
         <button className='relative btn-call '> 
-            <span className={cn('absolute animate-ping rounded-full opacity-75', callsStatus!==='CONNECTING' &'hidden')}>
+            <span className={cn('absolute animate-ping rounded-full opacity-75', callsStatus!=='CONNECTING' &&'hidden')}>
           
             </span>
 
-            <span>
-            {callStatus=== 'INACTIVE' || callStatus ==='FINISHED'?'Call':'....'}
+            <span className='relative'>
+            {callStatus=== "INACTIVE" || callStatus ==="FINISHED"?"Call":". . . "}
             </span>
         </button>
     ):(

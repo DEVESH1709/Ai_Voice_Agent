@@ -1,3 +1,4 @@
+
 "use server";
 import {db,auth} from '@/firebase/admin';
 
@@ -61,7 +62,7 @@ console.log(e);
 
 
 export async function setSessionCookies(idToken:string){
-const CookieStore = await cookies();
+const cookieStore = await cookies();
 
 const sessionCookie  =await auth.createSessionCookie(idToken,{expiresIn:OneWeek*1000,});
 
