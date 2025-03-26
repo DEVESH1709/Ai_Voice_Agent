@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-
+import {dummyInterviews} from "@/constants"
 import InterviewCard from "@/components/InterviewCard";
 export default function Home() {
   return (
@@ -23,9 +23,10 @@ export default function Home() {
    <section className="flex flex-col gap-6 mt-8">
     <h2>Your Interviews</h2>
     <div className="interviews-section">
-     {dummyInterviews.map((interview)=>{
-<InterviewCard {...interview} key={interview.id}> </InterviewCard>
-     })}
+    {dummyInterviews.map((interview) => (
+  <InterviewCard {...interview} key={interview.id} />
+))}
+
     </div>
 
    </section>
@@ -33,9 +34,10 @@ export default function Home() {
    <section className="flex flex-col gap-6 mt-8" >
     <h2>Take an Interviews</h2>
     <div className="inerviews-section">
-    {dummyInterviews.map((interview)=>{
-<InterviewCard {...interview} key={interview.id} > </InterviewCard>
-     })}
+    {dummyInterviews.map((interview) => (
+  <InterviewCard {...interview} key={interview.id} />
+))}
+
     </div>
    </section>
    </>

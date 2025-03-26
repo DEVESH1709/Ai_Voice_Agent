@@ -1,3 +1,4 @@
+import { dummyInterviews } from '@/constants';
 // import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 import { z } from "zod";
 
@@ -202,4 +203,23 @@ export const interviewCovers = [
   "/telegram.png",
   "/tiktok.png",
   "/yahoo.png",
+];
+
+export const dummyInterviews:Interview[]=[
+
+{
+  id:'1',
+  userId:'user1',
+  role:"Frontent Developer",
+  type:"Technical",
+  techstack:['React',"Typescript","Next.js"],
+  level:"Junir",
+  questions:['What is react?'],
+  finalized:false,
+  createdAt:'2024-03-15T10:00:002',
+}
+
+
+
+
 ];
