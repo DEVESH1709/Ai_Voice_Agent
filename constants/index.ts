@@ -1,4 +1,5 @@
-import { dummyInterviews } from '@/constants';
+// import { interviewer } from '@/constants';
+// import { dummyInterviews } from '@/constants';
 // import { CreateAssistantDTO } from "@vapi-ai/web/dist/api";
 import { z } from "zod";
 
@@ -204,22 +205,49 @@ export const interviewCovers = [
   "/tiktok.png",
   "/yahoo.png",
 ];
-
-export const dummyInterviews:Interview[]=[
-
-{
-  id:'1',
-  userId:'user1',
-  role:"Frontent Developer",
-  type:"Technical",
-  techstack:['React',"Typescript","Next.js"],
-  level:"Junir",
-  questions:['What is react?'],
-  finalized:false,
-  createdAt:'2024-03-15T10:00:002',
-}
-
-
-
-
+// import { Interview } from "@/types"; // Ensure the correct path
+export const dummyInterviews: Interview[] = [
+  {
+    id: "1",
+    userId: "user1",
+    role: "Frontend Developer",
+    type: "Technical",
+    techstack: ["React", "TypeScript", "Next.js"],
+    level: "Junior",
+    questions: [
+      "What is React?",
+      "How does React handle state management?",
+      "Explain the difference between useState and useEffect.",
+    ],
+    finalized: false,
+    createdAt: new Date("2024-03-15T10:00:02Z").toISOString(),
+  },
+  {
+    id: "2",
+    userId: "user2",
+    role: "Backend Developer",
+    type: "Technical",
+    techstack: ["Node.js", "Express", "MongoDB"],
+    level: "Mid-Level",
+    questions: [
+      "How does Node.js handle asynchronous operations?",
+      "What are the advantages of using MongoDB over SQL databases?",
+    ],
+    finalized: true,
+    createdAt: new Date("2024-03-16T12:30:45Z").toISOString(),
+  },
+  {
+    id: "3",
+    userId: "user3",
+    role: "Full Stack Developer",
+    type: "System Design",
+    techstack: ["React", "Node.js", "PostgreSQL"],
+    level: "Senior",
+    questions: [
+      "Design a scalable URL shortener service.",
+      "How would you handle authentication and authorization in a full-stack app?",
+    ],
+    finalized: false,
+    createdAt: new Date("2024-03-17T08:45:00Z").toISOString(),
+  },
 ];

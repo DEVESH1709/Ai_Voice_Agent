@@ -28,7 +28,7 @@ const lastMessage =messages[messages.length-1];
 
 
         <div className='avatar'>
-            <Image src="/ai-avatar.png"  alt="vapi" width={65} height={54} className="object-cover" ></image>
+            <Image src="/ai-avatar.png"  alt="vapi" width={65} height={54} className="object-cover" ></Image>
 
             {isSpeaking && <span className="animate-speak"></span>}
         </div>

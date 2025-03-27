@@ -6,10 +6,10 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import DisplayTechicons from "./DisplayTechicons";
 
-
+// Define types
 type InterviewCardProps = {
-  interviewId: string;
-  userId: string;
+  interviewId?: string;
+  userId?: string;
   role: string;
   type: string;
   techstack: string[];
