@@ -20,3 +20,9 @@ export async function getInterviewsByUserId(userId:string):Promise<Interview[] |
   }))as Interview[];
   
   }
+
+  export async function getInterviewsById(id:string):Promise<Interview|null>{
+    const interview =await db.collection('interviews').doc(id).get();
+  
+ return interview.data() as Interview|null;
+  }

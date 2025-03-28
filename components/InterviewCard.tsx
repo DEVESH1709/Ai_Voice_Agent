@@ -8,7 +8,7 @@ import DisplayTechicons from "./DisplayTechicons";
 
 // Define types
 type InterviewCardProps = {
-  interviewId?: string;
+  id?: string;
   userId?: string;
   role: string;
   type: string;
@@ -23,7 +23,7 @@ type Feedback = {
 };
 
 const InterviewCard = ({
-  interviewId,
+  id,
   userId,
   role,
   type,
@@ -83,7 +83,7 @@ const InterviewCard = ({
       <div className="flex flex-row justify-between mt-4">
         <DisplayTechicons techStack={techstack} />
         <Button asChild className="btn-primary">
-          <Link href={feedback ? `/interviews/${interviewId}/feedback` : `/interviews/${interviewId}`}>
+          <Link href={feedback ? `/interviews/${id}/feedback` : `/interviews/${id}`}>
             {feedback ? "Check Feedback" : "View Interview"}
           </Link>
         </Button>
