@@ -74,6 +74,8 @@ export async function getInterviewsByUserId(userId:string):Promise<Interview[] |
         feedbackId:feedback.id
     }
     }catch(e){
-        console.error('Error saving feedback')
+        console.error('Error saving feedback',e)
+
+        return {success:false}
     }
   }
