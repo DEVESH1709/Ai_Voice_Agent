@@ -7,31 +7,16 @@ import Link from "next/link";
 import DisplayTechicons from "./DisplayTechicons";
 import { getFeedbackByInterviewId } from "@/lib/actions/general.sction";
 
-// Define types
-type InterviewCardProps = {
-  id?: string;
-  userId?: string;
-  role: string;
-  type: string;
-  techstack: string[];
-  createdAt: string;
-};
-
-type Feedback = {
-  createdAt?: string;
-  totalScore?: number;
-  finalAssessment?: string;
-};
 
 const InterviewCard = async({
-  id,
+  interviewId,
   userId,
   role,
   type,
   techstack,
   createdAt,
 }: InterviewCardProps) => {
-  const feedback = userId && id ? await getFeedbackByInterviewId({interviewId:id, userId}):null;
+  const feedback = userId &&  interviewId? await getFeedbackByInterviewId({interviewId, userId}):null;
 
   // Normalize interview type display
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
@@ -84,7 +69,7 @@ const InterviewCard = async({
       <div className="flex flex-row justify-between mt-4">
         <DisplayTechicons techStack={techstack} />
         <Button asChild className="btn-primary">
-          <Link href={feedback ? `/interviews/${id}/feedback` : `/interviews/${id}`}>
+          <Link href={feedback ? `/interviews/${interviewId}/feedback` : `/interviews/${interviewId}`}>
             {feedback ? "Check Feedback" : "View Interview"}
           </Link>
         </Button>
