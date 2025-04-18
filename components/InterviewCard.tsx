@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import DisplayTechIcons from "./DisplayTechicons";
 
 import { cn, getRandomInterviewCover } from "@/lib/utils";
-import { getFeedbackByInterviewId } from "@/lib/actions/general.sction";
+import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
 const InterviewCard = async ({
   interviewId,

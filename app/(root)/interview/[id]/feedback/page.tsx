@@ -1,5 +1,5 @@
 import { getCurrentUser } from '@/lib/actions/auth.action';
-import { getFeedbackByInterviewId, getInterviewById } from '@/lib/actions/general.sction';
+import { getFeedbackByInterviewId, getInterviewById } from '@/lib/actions/general.action';
 import { redirect } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
