@@ -61,8 +61,36 @@ const Agent = ({
       setIsSpeaking(false);
     };
 
-    const onError = (error: Error) => {
-      console.log("Error:", error);
+    const onError = (error: unknown) => {
+      // Extract error message from various error formats
+      let errorMessage = "";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object") {
+        // Handle Vapi's error object format
+        const errObj = error as Record<string, unknown>;
+        errorMessage =
+          String(errObj.message || errObj.error || errObj.msg || "");
+      }
+
+      // Suppress empty errors and expected call-end errors
+      const isEmpty =
+        !error ||
+        (typeof error === "object" && Object.keys(error).length === 0);
+      const isCallEndError = /meeting ended|meeting has ended|ejection/i.test(
+        errorMessage
+      );
+
+      if (isEmpty || isCallEndError) {
+        setIsSpeaking(false);
+        setCallStatus(CallStatus.FINISHED);
+        return;
+      }
+
+      // Only log actual unexpected errors
+      console.warn("Vapi error:", errorMessage || error);
     };
 
     vapi.on("call-start", onCallStart);
@@ -117,26 +145,42 @@ const Agent = ({
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
-    if (type === "generate") {
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
-    } else {
-      let formattedQuestions = "";
-      if (questions) {
-        formattedQuestions = questions
-          .map((question) => `- ${question}`)
-          .join("\n");
+    try {
+      if (type === "generate") {
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        });
+      } else {
+        let formattedQuestions = "";
+        if (questions) {
+          formattedQuestions = questions
+            .map((question) => `- ${question}`)
+            .join("\n");
+        }
+
+        await vapi.start(interviewer, {
+          variableValues: {
+            questions: formattedQuestions,
+          },
+        });
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const isCallEndError = /meeting ended|meeting has ended|ejection/i.test(
+        errorMessage
+      );
+
+      if (isCallEndError) {
+        setCallStatus(CallStatus.FINISHED);
+        return;
       }
 
-      await vapi.start(interviewer, {
-        variableValues: {
-          questions: formattedQuestions,
-        },
-      });
+      console.error("Failed to start call:", error);
+      setCallStatus(CallStatus.INACTIVE);
     }
   };
 
