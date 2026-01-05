@@ -112,11 +112,24 @@ export async function getLatestInterviews(
 export async function getInterviewsByUserId(
   userId: string
 ): Promise<Interview[] | null> {
+  console.log("getInterviewsByUserId called with userId:", userId);
+  
+  // Debug: Get ALL interviews to see what's in the database
+  const allInterviews = await db.collection("interviews").limit(10).get();
+  console.log("ALL interviews in DB:", allInterviews.docs.map(doc => ({ 
+    id: doc.id, 
+    userId: doc.data().userId,
+    role: doc.data().role,
+    finalized: doc.data().finalized
+  })));
+  
   const interviews = await db
     .collection("interviews")
     .where("userId", "==", userId)
     .orderBy("createdAt", "desc")
     .get();
+
+  console.log("Found interviews count:", interviews.docs.length);
 
   return interviews.docs.map((doc) => ({
     id: doc.id,
