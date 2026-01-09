@@ -59,6 +59,19 @@ export async function createFeedback(params: CreateFeedbackParams) {
 
     await feedbackRef.set(feedback);
 
+    // Mark interview as completed once feedback is generated.
+    // This helps any UI that relies on `finalized`.
+    try {
+      await db.collection("interviews").doc(interviewId).set(
+        {
+          finalized: true,
+        },
+        { merge: true }
+      );
+    } catch (error) {
+      console.error("Error finalizing interview:", error);
+    }
+
     return { success: true, feedbackId: feedbackRef.id };
   } catch (error) {
     console.error("Error saving feedback:", error);
@@ -95,44 +108,44 @@ export async function getLatestInterviews(
 ): Promise<Interview[] | null> {
   const { userId, limit = 20 } = params;
 
-  const interviews = await db
-    .collection("interviews")
-    .orderBy("createdAt", "desc")
-    .where("finalized", "==", true)
-    .where("userId", "!=", userId)
-    .limit(limit)
-    .get();
+  try {
+    // NOTE: Firestore may require a composite index for `where(finalized==true) + orderBy(createdAt)`.
+    // To keep local/dev setup simple, fetch the most recent interviews by `createdAt` and filter in memory.
+    const interviewsSnap = await db
+      .collection("interviews")
+      .orderBy("createdAt", "desc")
+      .limit(limit + 50)
+      .get();
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+    const interviews = interviewsSnap.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }) as Interview)
+      .filter((interview) => interview.finalized === true)
+      .filter((interview) => interview.userId !== userId)
+      .slice(0, limit);
+
+    return interviews;
+  } catch (error) {
+    console.error("Error fetching latest interviews:", error);
+    return [];
+  }
 }
 
 export async function getInterviewsByUserId(
   userId: string
 ): Promise<Interview[] | null> {
-  console.log("getInterviewsByUserId called with userId:", userId);
-  
-  // Debug: Get ALL interviews to see what's in the database
-  const allInterviews = await db.collection("interviews").limit(10).get();
-  console.log("ALL interviews in DB:", allInterviews.docs.map(doc => ({ 
-    id: doc.id, 
-    userId: doc.data().userId,
-    role: doc.data().role,
-    finalized: doc.data().finalized
-  })));
-  
-  const interviews = await db
-    .collection("interviews")
-    .where("userId", "==", userId)
-    .orderBy("createdAt", "desc")
-    .get();
+  try {
+    const interviews = await db
+      .collection("interviews")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .get();
 
-  console.log("Found interviews count:", interviews.docs.length);
-
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+    return interviews.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
+  } catch (error) {
+    console.error("Error fetching interviews by userId:", error);
+    return [];
+  }
 }

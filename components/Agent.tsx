@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -34,9 +34,13 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [generatedInterviewId, setGeneratedInterviewId] = useState<string | null>(null);
+  const [generateParams, setGenerateParams] = useState<Record<string, unknown> | null>(null);
+  const handledFinishRef = useRef(false);
 
   useEffect(() => {
     const onCallStart = () => {
+      handledFinishRef.current = false;
       setCallStatus(CallStatus.ACTIVE);
     };
 
@@ -48,6 +52,35 @@ const Agent = ({
       if (message.type === "transcript" && message.transcriptType === "final") {
         const newMessage = { role: message.role, content: message.transcript };
         setMessages((prev) => [...prev, newMessage]);
+        return;
+      }
+
+      // When using Vapi Workflows, metadata often arrives via tool/function messages.
+      // We store what we can so we can create the interview on our backend.
+      if (message.type === "function-call") {
+        const params = (message.functionCall?.parameters ?? null) as
+          | Record<string, unknown>
+          | null;
+        if (params && typeof params === "object") {
+          setGenerateParams(params);
+        }
+        return;
+      }
+
+      if (message.type === "function-call-result") {
+        const result = (message.functionCallResult?.result ?? null) as
+          | Record<string, unknown>
+          | null;
+
+        const id =
+          (result && typeof result === "object" &&
+          (typeof result.interviewId === "string"
+            ? result.interviewId
+            : typeof result.id === "string"
+              ? result.id
+              : null)) || null;
+
+        if (id) setGeneratedInterviewId(id);
       }
     };
 
@@ -133,14 +166,54 @@ const Agent = ({
       }
     };
 
+    const handleGenerateInterview = async () => {
+      // If the workflow already returned an ID, just go there.
+      if (generatedInterviewId) {
+        router.push(`/interview/${generatedInterviewId}`);
+        return;
+      }
+
+      // Otherwise try to create it ourselves using any parameters the workflow sent.
+      if (generateParams && userId) {
+        try {
+          const response = await fetch("/api/vapi/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...generateParams, userId }),
+          });
+
+          const data = (await response.json()) as {
+            success?: boolean;
+            interviewId?: string;
+            error?: string;
+          };
+
+          if (data?.success && data?.interviewId) {
+            router.push(`/interview/${data.interviewId}`);
+            router.refresh();
+            return;
+          }
+        } catch (error) {
+          console.error("Failed to create interview:", error);
+        }
+      }
+
+      // Fallback: at least return to dashboard.
+      router.push("/");
+      router.refresh();
+    };
+
     if (callStatus === CallStatus.FINISHED) {
+      if (handledFinishRef.current) return;
+      handledFinishRef.current = true;
+
       if (type === "generate") {
-        router.push("/");
+        handleGenerateInterview();
       } else {
         handleGenerateFeedback(messages);
       }
     }
-  }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
+  }, [messages, callStatus, feedbackId, interviewId, router, type, userId, generatedInterviewId, generateParams]);
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
